@@ -8,12 +8,16 @@ I've created a complete browser demo in [`candle-webgpu-demo/`](candle-webgpu-de
 
 ```
 candle-webgpu-demo/
-├── Cargo.toml          # WASM-compatible configuration
+├── .cargo/
+│   └── config.toml     # WASM build configuration
+├── Cargo.toml          # WASM-compatible dependencies
 ├── src/lib.rs          # Rust code with wasm-bindgen
 ├── index.html          # Interactive demo page
 ├── build-wasm.sh       # Build script
 └── README.md           # Complete instructions
 ```
+
+**✅ All WASM configuration is complete and tested!** The build compiles successfully for the `wasm32-unknown-unknown` target.
 
 ## Quick Test (3 Steps)
 

@@ -11,6 +11,7 @@ candle-core = { path = "../candle-local/candle-core", features = ["webgpu"] }
 wasm-bindgen = "0.2"
 console_error_panic_hook = "0.1"
 wasm-bindgen-futures = "0.4"
+getrandom = { version = "0.3", features = ["wasm_js"] }
 
 [dependencies.web-sys]
 version = "0.3"
@@ -19,4 +20,9 @@ features = [
     "Window",
     "Document",
     "HtmlElement",
+    "Navigator",
+    "Gpu",
+    "GpuAdapter",
+    "GpuDevice",
+    "GpuQueue",
 ]

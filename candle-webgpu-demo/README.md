@@ -136,6 +136,23 @@ The entire ML computation pipeline runs in your browser with no server required.
 - **Build Tool**: wasm-pack
 - **GPU Shaders**: WGSL (WebGPU Shading Language)
 
+### WASM Configuration
+
+The project includes special configuration for WebAssembly builds:
+
+**`.cargo/config.toml`** - Configures the getrandom backend for WASM:
+```toml
+[target.wasm32-unknown-unknown]
+rustflags = ["--cfg", "getrandom_backend=\"wasm_js\""]
+```
+
+**`Cargo.toml`** - Includes getrandom with wasm_js feature:
+```toml
+getrandom = { version = "0.3", features = ["wasm_js"] }
+```
+
+This configuration is required for random number generation in WASM environments.
+
 ## Next Steps
 
 Want to extend this demo?

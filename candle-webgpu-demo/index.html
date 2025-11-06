@@ -74,7 +74,8 @@
     </div>
 
     <script type="module">
-        import init, { run_webgpu_demo } from './pkg/candle_webgpu_demo.js';
+        // Add timestamp to force cache reload of updated WASM
+        import init, { run_webgpu_demo } from './pkg/candle_webgpu_demo.js?v=1730934000';
 
         let wasmInitialized = false;
 

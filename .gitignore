@@ -22,3 +22,6 @@ Cargo.lock
 
 # Node (if you add npm scripts)
 node_modules/
+
+# Local Candle development
+/candle-local/

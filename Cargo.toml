@@ -16,10 +16,10 @@ wasm-bindgen = "0.2.105"
 wasm-bindgen-futures = "0.4"
 js-sys = "0.3"
 
-# ML Framework (awaiting WebGPU support)
-candle-core = { version = "0.9.1" }
-candle-nn = { version = "0.9.1" }
-candle-transformers = { version = "0.9.1" }
+# ML Framework (local development for WebGPU support)
+candle-core = { path = "./candle-local/candle-core" }
+candle-nn = { path = "./candle-local/candle-nn" }
+candle-transformers = { path = "./candle-local/candle-transformers" }
 
 # Tokenization
 tokenizers = { version = "0.22.1", default-features = false, features = ["unstable_wasm"] }

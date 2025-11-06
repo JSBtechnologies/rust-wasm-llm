@@ -1,0 +1,96 @@
+[package]
+name = "rust-wasm-llm"
+version = "0.1.0"
+edition = "2021"
+authors = ["WASM LLM Contributors"]
+description = "Rust-based WASM LLM with Candle for browser inference and RAG"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/yourusername/rust-wasm-llm"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+# Core WASM bindings
+wasm-bindgen = "0.2.105"
+wasm-bindgen-futures = "0.4"
+js-sys = "0.3"
+
+# ML Framework (awaiting WebGPU support)
+candle-core = { version = "0.9.1" }
+candle-nn = { version = "0.9.1" }
+candle-transformers = { version = "0.9.1" }
+
+# Tokenization
+tokenizers = { version = "0.22.1", default-features = false, features = ["unstable_wasm"] }
+
+# Storage
+rexie = "0.6"
+
+# Utilities
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+serde-wasm-bindgen = "0.6"
+anyhow = "1.0"
+thiserror = "2.0"
+console_error_panic_hook = "0.1"
+console_log = { version = "1.0", features = ["color"] }
+log = "0.4"
+futures = "0.3"
+async-trait = "0.1"
+
+[dependencies.web-sys]
+version = "0.3"
+features = [
+    "console",
+    "Window",
+    "Document",
+    "Element",
+    "HtmlElement",
+    "HtmlInputElement",
+    "HtmlTextAreaElement",
+    "HtmlButtonElement",
+    "Event",
+    "EventTarget",
+    "File",
+    "FileList",
+    "FileReader",
+    "Blob",
+    "ProgressEvent",
+    "Request",
+    "RequestInit",
+    "RequestMode",
+    "Response",
+    "Headers",
+    "Performance",
+    "Storage",
+    "MessageEvent",
+    "Worker",
+    "WorkerOptions",
+]
+
+[dev-dependencies]
+rand = "0.8"
+
+[profile.release]
+opt-level = 'z'  # Optimize for size
+lto = true       # Enable link-time optimization
+codegen-units = 1  # Better optimization
+panic = 'abort'  # Smaller binary
+strip = true     # Strip symbols
+
+[profile.dev]
+opt-level = 1    # Some optimization for dev builds
+
+[profile.dev.package."*"]
+opt-level = 3    # Optimize dependencies even in dev
+
+# CRITICAL: Enable WASM support for getrandom 0.3
+# This was the key fix that made everything work!
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+getrandom = { version = "0.3", features = ["wasm_js"] }
+
+# wasm-pack configuration
+[package.metadata.wasm-pack.profile.release]
+# Enable required WASM features for wasm-opt
+wasm-opt = ["-O", "--enable-bulk-memory", "--enable-nontrapping-float-to-int"]

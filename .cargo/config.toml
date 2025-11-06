@@ -1,0 +1,5 @@
+# Cargo configuration for WASM builds
+
+[target.wasm32-unknown-unknown]
+# rustflags left empty - getrandom 0.3 with wasm_js feature handles WASM support automatically
+rustflags = []

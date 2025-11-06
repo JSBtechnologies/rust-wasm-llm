@@ -15,7 +15,9 @@ The browser demo infrastructure is **95% complete**, but requires two small fixe
 
 ### What Needs Fixing 🔧
 
-The demo hits a "condvar wait not supported" error because the WebGPU backend tries to use blocking operations (`pollster::block_on` and `std::sync::mpsc`) which don't work in single-threaded WASM environments.
+The demo hits two errors:
+1. **"condvar wait not supported"** - WebGPU backend uses blocking operations that don't work in WASM
+2. **"maxInterStageShaderComponents...not recognized"** - Browser doesn't support all GPU limits
 
 ## Required Fixes
 
@@ -25,9 +27,10 @@ See [`WASM_FIXES_REQUIRED.md`](WASM_FIXES_REQUIRED.md) for detailed instructions
 
 **Quick summary:**
 1. Edit `candle-local/candle-core/src/device.rs` - Add async API
-2. Edit `candle-local/candle-core/src/webgpu_backend/device.rs` - Add conditional compilation
+2. Edit `candle-local/candle-core/src/webgpu_backend/device.rs` - Add conditional compilation (2 locations)
+3. Edit `candle-local/candle-core/src/webgpu_backend/device.rs` - Use browser-compatible limits
 
-These 2 small changes add async support for WASM while keeping blocking behavior on native platforms.
+These 3 small changes add async support for WASM and ensure browser compatibility.
 
 ### Step 2: Build and Test
 
@@ -140,7 +143,7 @@ Once working, you'll see:
 ## Next Steps
 
 ### Immediate (To Get Demo Working)
-1. ✅ Apply the 2 fixes from [`WASM_FIXES_REQUIRED.md`](WASM_FIXES_REQUIRED.md)
+1. ✅ Apply the 3 fixes from [`WASM_FIXES_REQUIRED.md`](WASM_FIXES_REQUIRED.md)
 2. ✅ Build with `wasm-pack`
 3. ✅ Test in Chrome 113+ or Edge 113+
 
@@ -160,7 +163,7 @@ Getting this working enables:
 - 📱 **Cross-platform** - Works on any WebGPU-capable device
 - 🎯 **Edge deployment** - Run models anywhere
 
-The foundation is solid - these last 2 fixes unlock browser-based GPU-accelerated ML!
+The foundation is solid - these 3 fixes unlock browser-based GPU-accelerated ML!
 
 ---
 

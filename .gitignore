@@ -25,3 +25,5 @@ node_modules/
 
 # Local Candle development
 /candle-local/
+candle-webgpu-demo/target/
+target/

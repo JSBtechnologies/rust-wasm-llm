@@ -2,6 +2,11 @@
 
 The browser demo requires the following changes to `candle-local/candle-core` to work properly. These files are in the ignored `candle-local/` directory, so you'll need to apply these changes manually.
 
+**3 fixes required:**
+1. Add async device creation API
+2. Add conditional compilation for WASM/native
+3. Use browser-compatible GPU limits
+
 ## Files to Modify
 
 ### 1. `candle-local/candle-core/src/device.rs`
@@ -87,6 +92,54 @@ fn new(_ordinal: usize) -> Result<Self> {
 
 ---
 
+### 3. `candle-local/candle-core/src/webgpu_backend/device.rs` (Browser Limits Fix)
+
+**Location 3:** Line 69-77 (device request)
+
+**Change:**
+```rust
+// BEFORE:
+// Request device and queue
+let (device, queue) = adapter
+    .request_device(
+        &DeviceDescriptor {
+            label: Some(&format!("Candle WebGPU Device {}", ordinal)),
+            required_features: wgpu::Features::empty(),
+            required_limits: wgpu::Limits::default(),
+            memory_hints: wgpu::MemoryHints::default(),
+        },
+        None,
+    )
+    .await
+    .map_err(|e| WebGpuError::DeviceRequestFailed(e.to_string()))?;
+
+// AFTER:
+// Request device and queue
+// For WASM, use downlevel defaults to be compatible with all browsers
+#[cfg(target_arch = "wasm32")]
+let limits = wgpu::Limits::downlevel_webgl2_defaults();
+
+#[cfg(not(target_arch = "wasm32"))]
+let limits = wgpu::Limits::default();
+
+let (device, queue) = adapter
+    .request_device(
+        &DeviceDescriptor {
+            label: Some(&format!("Candle WebGPU Device {}", ordinal)),
+            required_features: wgpu::Features::empty(),
+            required_limits: limits,
+            memory_hints: wgpu::MemoryHints::default(),
+        },
+        None,
+    )
+    .await
+    .map_err(|e| WebGpuError::DeviceRequestFailed(e.to_string()))?;
+```
+
+**Why:** Browser WebGPU implementations don't support all the limits that `wgpu::Limits::default()` requests (like `maxInterStageShaderComponents`). Using `downlevel_webgl2_defaults()` provides conservative limits that work across all browsers.
+
+---
+
 ## How to Apply
 
 1. **Edit the files:**
@@ -117,6 +170,7 @@ These changes add **conditional compilation** to:
 - ✅ Provide async-only API on WASM (avoids blocking primitives)
 - ✅ Allow browser demo to use `Device::new_webgpu_async()`
 - ✅ Prevent accidental use of blocking calls in WASM
+- ✅ Use browser-compatible GPU limits (fixes `maxInterStageShaderComponents` error)
 
 ## Why Not Committed
 

@@ -71,6 +71,10 @@ Waiting for Candle to support WebGPU before enabling inference.
 
 ## Quick Start
 
+Works on **macOS**, **Linux**, and **Windows** (via WSL2).
+
+**Windows users:** See [WSL_SETUP.md](WSL_SETUP.md) for detailed Windows setup instructions.
+
 ### 1. One-Time Setup
 
 The `setup.sh` script installs everything you need:
@@ -89,6 +93,8 @@ This will install:
 - wasm32-unknown-unknown target
 - wasm-pack (for building WASM)
 - basic-http-server (for local testing)
+
+The script automatically detects WSL and provides platform-specific instructions.
 
 ### 2. Build the Browser Demo
 
@@ -121,30 +127,60 @@ Click "Run WebGPU Demo" to see GPU-accelerated operations running in your browse
 
 Check WebGPU support: `chrome://gpu/` or `about:support`
 
-## Architecture
+## Project Structure
 
 ```
 rust-wasm-llm/
-├── src/
-│   ├── lib.rs                  # WASM entry point and exports
-│   ├── llm/                    # Language model (inactive)
-│   │   ├── model.rs           # Candle model loading
-│   │   ├── inference.rs       # Text generation
-│   │   └── config.rs          # Configuration
-│   ├── rag/                    # Retrieval-Augmented Generation
-│   │   ├── vector_db.rs       # Vector similarity search
-│   │   ├── document_store.rs  # Document management
-│   │   └── embeddings.rs      # Embedding generation
-│   ├── storage/                # Browser persistence
-│   │   └── indexed_db.rs      # IndexedDB wrapper
-│   └── utils/                  # Shared utilities
-│       ├── tokenizer_wrapper.rs  # Tokenization
-│       └── error.rs           # Error types
-├── Cargo.toml                  # Dependencies
-├── .cargo/config.toml          # WASM build config
-├── build-wasm.sh               # Build script
-├── test.html                   # Test page
-└── pkg/                        # Build output
+├── candle-local/               # Local Candle fork with WebGPU support
+│   └── candle-core/
+│       └── src/
+│           ├── device.rs       # Device API with async support
+│           └── webgpu_backend/ # WebGPU backend implementation
+│               ├── device.rs   # WebGPU device management
+│               ├── storage.rs  # GPU memory management
+│               ├── kernels.rs  # GPU compute kernels
+│               └── shaders.rs  # WGSL shader code
+├── candle-webgpu-demo/         # Browser demo (main focus)
+│   ├── src/lib.rs             # WASM entry point
+│   ├── index.html             # Interactive demo page
+│   ├── build-wasm.sh          # Build script
+│   └── pkg/                   # WASM build output
+├── setup.sh                    # One-time development setup
+└── README.md                   # This file
+```
+
+## WebGPU Browser Demo
+
+The [candle-webgpu-demo/](candle-webgpu-demo/) directory contains a complete browser demo that shows:
+
+### What It Demonstrates
+
+- **Matrix Multiplication**: 2×2 matrices on GPU
+- **Activation Functions**: ReLU, GELU operations
+- **Element-wise Operations**: Addition, multiplication
+- **Chained Operations**: Multiple GPU ops in sequence
+
+### How It Works
+
+1. **Device Creation**: Async WebGPU device initialization
+2. **GPU Operations**: Compute shaders execute on your GPU
+3. **Operation Validation**: Confirms operations complete successfully
+4. **Browser Integration**: Pure WASM/JavaScript, no servers needed
+
+### Demo Output Example
+
+```
+✅ WebGPU device created!
+--- Running Matrix Multiplication ---
+✓ Matrix multiplication completed on GPU
+  Result shape: [2, 2]
+
+--- Testing Activation Functions ---
+✓ ReLU activation completed on GPU
+✓ GELU activation completed on GPU
+
+✨ All GPU operations completed successfully!
+💡 All computations ran on your GPU via WebGPU!
 ```
 
 ## Key Achievement: getrandom 0.3 Fix

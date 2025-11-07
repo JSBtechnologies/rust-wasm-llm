@@ -1,6 +1,7 @@
 #!/bin/bash
 # Setup script for Rust WebGPU/WASM development
 # Installs and configures all necessary tools
+# Works on macOS, Linux, and Windows WSL
 
 set -e  # Exit on error
 
@@ -13,7 +14,16 @@ echo ""
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
 NC='\033[0m' # No Color
+
+# Detect WSL
+IS_WSL=false
+if grep -qi microsoft /proc/version 2>/dev/null; then
+    IS_WSL=true
+    echo -e "${BLUE}ℹ${NC} Detected Windows Subsystem for Linux (WSL)"
+    echo ""
+fi
 
 # Check if a command exists
 command_exists() {
@@ -31,6 +41,10 @@ print_warning() {
 
 print_error() {
     echo -e "${RED}✗${NC} $1"
+}
+
+print_info() {
+    echo -e "${BLUE}ℹ${NC} $1"
 }
 
 # 1. Check/Install Rust
@@ -117,11 +131,34 @@ echo ""
 echo "  2. Start local server:"
 echo "     basic-http-server ."
 echo ""
-echo "  3. Open in browser:"
-echo "     http://localhost:4000"
-echo ""
+
+if [ "$IS_WSL" = true ]; then
+    echo "  3. Open in Windows browser:"
+    echo "     http://localhost:4000"
+    echo ""
+    print_info "WSL detected - use Chrome/Edge on Windows to access the server"
+    print_info "WSL2: localhost works directly from Windows"
+    print_info "WSL1: May need to use WSL IP address instead"
+    echo ""
+    echo "To get WSL IP address (if localhost doesn't work):"
+    echo "  ip addr show eth0 | grep 'inet ' | awk '{print \$2}' | cut -d/ -f1"
+    echo ""
+else
+    echo "  3. Open in browser:"
+    echo "     http://localhost:4000"
+    echo ""
+fi
+
 echo "Browser requirements:"
 echo "  - Chrome/Edge 113+ (recommended)"
 echo "  - Firefox Nightly (with WebGPU enabled)"
 echo "  - Safari Technology Preview"
 echo ""
+
+if [ "$IS_WSL" = true ]; then
+    print_info "For WSL users:"
+    echo "  - Install Chrome/Edge on Windows (not in WSL)"
+    echo "  - The server runs in WSL, browser runs on Windows"
+    echo "  - They communicate via localhost networking"
+    echo ""
+fi
